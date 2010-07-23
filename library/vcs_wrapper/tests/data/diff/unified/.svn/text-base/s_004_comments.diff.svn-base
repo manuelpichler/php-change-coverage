@@ -1,0 +1,8 @@
+Index: file
+===================================================================
+--- file	(revision 1)
++++ file	(revision 5)
+@@ -1 +1,2 @@
+ Some test file
++A second line, in a later revision
+

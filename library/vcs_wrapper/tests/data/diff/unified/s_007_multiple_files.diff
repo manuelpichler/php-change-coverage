@@ -1,0 +1,19 @@
+Index: dir1/file
+===================================================================
+--- dir1/file	(revision 0)
++++ dir1/file	(revision 5)
+@@ -0,0 +1 @@
++Some test contents
+
+Property changes on: dir1
+___________________________________________________________________
+Added: svn:mergeinfo
+
+Index: file
+===================================================================
+--- file	(revision 1)
++++ file	(revision 5)
+@@ -1 +1,2 @@
+ Some test file
++A second line, in a later revision
+

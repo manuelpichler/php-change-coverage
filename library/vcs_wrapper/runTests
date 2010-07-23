@@ -1,0 +1,30 @@
+#!/usr/bin/env php
+<?php
+
+// List of special test modules.
+$modules = array(
+	'diff'    => array( 'vcsDiffTestSuite', 'tests/diff_suite.php' ),
+	'cache'   => array( 'vcsCacheTestSuite', 'tests/cache_suite.php' ),
+	'cvs-cli' => array( 'vcsCvsCliTestSuite', 'tests/cvs_cli_suite.php' ),
+	'svn-cli' => array( 'vcsSvnCliTestSuite', 'tests/svn_cli_suite.php' ),
+	'svn-ext' => array( 'vcsSvnExtTestSuite', 'tests/svn_ext_suite.php' ),
+	'git-cli' => array( 'vcsGitCliTestSuite', 'tests/git_cli_suite.php' ),
+	'archive' => array( 'vcsArchiveTestSuite', 'tests/archive_suite.php' ),
+	'hg-cli'  => array( 'vcsHgCliTestSuite', 'tests/hg_cli_suite.php' ),
+	'bzr-cli'  => array( 'vcsBzrCliTestSuite', 'tests/bzr_cli_suite.php' ),
+);
+
+// Check if the test should only be run for a specified module.
+if ( isset( $modules[end( $argv )] ) )
+{
+    $module = array_pop( $argv );
+    $_SERVER['argv'] = array_merge( $argv, $modules[$module] );
+}
+elseif ( count( $argv ) < 2 )
+{
+    $_SERVER['argv'] = array_merge( $argv, array( 'vcsTestSuite', 'tests/suite.php' ) );
+}
+
+require dirname( __FILE__ ) . '/tests/runner/command.php';
+arbitTextUiCommand::main();
+
