@@ -14,4 +14,14 @@ class Test extends PHPUnit_Framework_TestCase
         $foo = new Foo();
         self::assertEquals( 42, $foo->bar() );
     }
+
+    /**
+     * @return void
+     * @test
+     */
+    public function barReturnsStillForthyTwo()
+    {
+        $foo = new Foo();
+        self::assertEquals( 42, $foo->bar() );
+    }
 }
