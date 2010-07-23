@@ -6,8 +6,8 @@ class Foo
     public function bar()
     {
         if ( $this->x > 42 )
-        {
-            $this->baz( $this->x );
+        { 
+            $this->baz( $this->x ); 
         }
         return $this->x;
     }
