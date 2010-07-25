@@ -1,8 +1,0 @@
-K 13
-svn:externals
-V 225
-system_process svn://pureenergy.cc/systemProcess/trunk/src/classes
-exceptions/system_process svn://pureenergy.cc/systemProcess/trunk/src/exceptions/systemProcess
-xml svn://arbitracker.org/arbit/projects/xml/trunk/src/classes
-
-END

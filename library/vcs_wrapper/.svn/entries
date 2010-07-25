@@ -1,15 +1,15 @@
 10
 
 dir
-1841
-svn://arbitracker.org/arbit/projects/vcs_wrapper/trunk
+1844
+svn://arbitracker.org/arbit/projects/vcs_wrapper/trunk/src
 svn://arbitracker.org/arbit
 
 
 
-2010-06-18T04:43:11.681932Z
-1836
-taxilian
+2010-07-25T10:56:48.742236Z
+1844
+mapi
 
 
 
@@ -26,24 +26,17 @@ taxilian
 
 d477c273-c135-45d2-a073-3c6b16f0e171
 
-tests
-dir
-
-src
-dir
-
-runTests
+AUTHORS
 file
 
 
 
 
-2010-07-14T20:31:31.000000Z
-ef6aee8dd3ff25a312fdaefbef0cdef9
-2010-06-15T18:11:43.838416Z
-1834
-taxilian
-has-props
+2010-07-25T11:01:49.000000Z
+3d1becaa4d91f17fdadc547e703a470c
+2010-01-12T21:44:16.246426Z
+1561
+kore
 
 
 
@@ -64,5 +57,43 @@ has-props
 
 
 
-1138
+
+344
+
+COPYRIGHT
+file
+
+
+
+
+2010-07-25T11:01:49.000000Z
+6a6a8e020838b23406c81b19c1d46df6
+2009-01-22T16:38:54.124906Z
+1000
+kore
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+7639
+
+classes
+dir
 
