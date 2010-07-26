@@ -22,6 +22,13 @@ abstract class PHP_ChangeCoverage_AbstractTestCase extends PHPUnit_Framework_Tes
     protected $backupStaticAttributes = false;
 
     /**
+     * The projects base directory.
+     *
+     * @var string
+     */
+    protected $baseDir = null;
+
+    /**
      * Setup registers the autoload mechanism for the source under test.
      *
      * @return void
@@ -31,6 +38,8 @@ abstract class PHP_ChangeCoverage_AbstractTestCase extends PHPUnit_Framework_Tes
         parent::setUp();
 
         spl_autoload_register( array( $this, 'autoload' ) );
+
+        $this->baseDir = dirname( __FILE__ ) . '/../../..';
     }
 
     /**
@@ -63,11 +72,29 @@ abstract class PHP_ChangeCoverage_AbstractTestCase extends PHPUnit_Framework_Tes
     {
         if ( strpos( $className, 'PHP_ChangeCoverage_' ) === 0 )
         {
-            include dirname( __FILE__ ) . '/../../../source/' . strtr( $className, '_', '/' ) . '.php';
+            include $this->baseDir . '/source/' . strtr( $className, '_', '/' ) . '.php';
         }
         else if ( strpos( $className, 'PHP_CodeCoverage_' ) === 0 )
         {
             include strtr( $className, '_', '/' ) . '.php';
         }
+        else
+        {
+            $autoload = $this->loadAutoload();
+            if ( isset( $autoload[$className] ) )
+            {
+                include $this->baseDir . '/library/vcs_wrapper/classes/' . $autoload[$className];
+            }
+        }
+    }
+
+    public function loadAutoload()
+    {
+        $fileName = $this->baseDir . '/library/vcs_wrapper/classes/autoload.php';
+        if ( file_exists( $fileName ) )
+        {
+            return include $fileName;
+        }
+        return array();
     }
 }
