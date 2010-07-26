@@ -40,6 +40,8 @@ abstract class PHP_ChangeCoverage_AbstractTestCase extends PHPUnit_Framework_Tes
         spl_autoload_register( array( $this, 'autoload' ) );
 
         $this->baseDir = dirname( __FILE__ ) . '/../../..';
+
+        $this->deleteTempDirectory();
     }
 
     /**
@@ -57,6 +59,8 @@ abstract class PHP_ChangeCoverage_AbstractTestCase extends PHPUnit_Framework_Tes
             }
             spl_autoload_unregister( $function );
         }
+
+        $this->deleteTempDirectory();
 
         parent::tearDown();
     }
@@ -96,5 +100,58 @@ abstract class PHP_ChangeCoverage_AbstractTestCase extends PHPUnit_Framework_Tes
             return include $fileName;
         }
         return array();
+    }
+
+    /**
+     * Creates a temp
+     *
+     * @param string $directory Local directory name.
+     *
+     * @return string
+     */
+    protected function createDirectory( $directory )
+    {
+        $path = $this->createTempDirectory() . '/' . $directory;
+        mkdir( $path, 0755, true );
+        return $path;
+    }
+
+    protected function createTempDirectory()
+    {
+        if ( false === file_exists( $this->getTempDirectory() ) )
+        {
+            mkdir( $this->getTempDirectory(), 0755, true );
+        }
+        return $this->getTempDirectory();
+    }
+
+    protected function deleteTempDirectory()
+    {
+        if ( file_exists( $this->getTempDirectory() ) )
+        {
+            $this->deleteDirectory( $this->getTempDirectory() );
+        }
+    }
+
+    protected function deleteDirectory( $directory )
+    {
+        $dir = new DirectoryIterator( $directory );
+        foreach ( $dir as $file )
+        {
+            if ( $file->isFile() )
+            {
+                unlink( $file->getPathname() );
+            }
+            else if ( $file->getFilename() !== '.' && $file->getFilename() !== '..' )
+            {
+                $this->deleteDirectory( $file->getPathname() );
+            }
+        }
+        rmdir( $directory );
+    }
+
+    protected function getTempDirectory()
+    {
+        return sys_get_temp_dir() . '/~phpunit-phpcc';
     }
 }

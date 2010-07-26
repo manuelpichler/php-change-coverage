@@ -62,20 +62,6 @@ require_once dirname( __FILE__ ) . '/../AbstractTestCase.php';
  */
 class PHP_ChangeCoverage_ChangeSet_FactoryUnitTest extends PHP_ChangeCoverage_AbstractTestCase
 {
-    protected function setUp()
-    {
-        parent::setUp();
-
-        $this->deleteTempDirectory();
-    }
-
-    protected function tearDown()
-    {
-        $this->deleteTempDirectory();
-
-        parent::tearDown();
-    }
-
     /**
      * testFactoryCreatesVersionControlChangeSet
      *
@@ -144,51 +130,5 @@ class PHP_ChangeCoverage_ChangeSet_FactoryUnitTest extends PHP_ChangeCoverage_Ab
             array( '.svn' ),
             array( 'CVS' )
         );
-    }
-
-    protected function createDirectory( $directory )
-    {
-        $path = $this->createTempDirectory() . '/' . $directory;
-        mkdir( $path, 0755, true );
-        return $path;
-    }
-
-    protected function createTempDirectory()
-    {
-        if ( false === file_exists( $this->getTempDirectory() ) )
-        {
-            mkdir( $this->getTempDirectory(), 0755, true );
-        }
-        return $this->getTempDirectory();
-    }
-
-    protected function deleteTempDirectory()
-    {
-        if ( file_exists( $this->getTempDirectory() ) )
-        {
-            $this->deleteDirectory( $this->getTempDirectory() );
-        }
-    }
-
-    protected function deleteDirectory( $directory )
-    {
-        $dir = new DirectoryIterator( $directory );
-        foreach ( $dir as $file )
-        {
-            if ( $file->isFile() )
-            {
-                unlink( $file->getPathname() );
-            }
-            else if ( $file->getFilename() !== '.' && $file->getFilename() !== '..' )
-            {
-                $this->deleteDirectory( $file->getPathname() );
-            }
-        }
-        rmdir( $directory );
-    }
-
-    protected function getTempDirectory()
-    {
-        return sys_get_temp_dir() . '/~phpunit-phpcc';
     }
 }
