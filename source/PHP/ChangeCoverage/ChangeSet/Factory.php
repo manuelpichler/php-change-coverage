@@ -47,6 +47,8 @@
  */
 
 /**
+ * Factory class that should should be used to calculate the changeset for a
+ * source file instance.
  *
  * @category   QualityAssurance
  * @package    PHP_ChangeCoverage
@@ -59,7 +61,13 @@
  */
 class PHP_ChangeCoverage_ChangeSet_Factory
 {
-
+    /**
+     * Creates a changeset instance for the given source file.
+     *
+     * @param PHP_ChangeCoverage_Source_File $file
+     *
+     * @return PHP_ChangeCoverage_ChangeSet
+     */
     public function create( PHP_ChangeCoverage_Source_File $file )
     {
         if ( is_object( $vcsFile = $this->createVcsFile( $file->getPath() ) ) )
@@ -69,10 +77,19 @@ class PHP_ChangeCoverage_ChangeSet_Factory
         return new PHP_ChangeCoverage_ChangeSet_FileSystem();
     }
 
-    protected function createVcsFile( $pathName )
+    /**
+     * This method tries to determine the used version control, to create a
+     * corresponding instance of {@link vcsFile}. If no matching or known version
+     * control system was found, this method simply returns <b>null</b>.
+     *
+     * @param string $file The full qualified file path.
+     *
+     * @return vcsFile
+     */
+    protected function createVcsFile( $file )
     {
-        $fileParts = array( basename( $pathName ) );
-        $parts = explode( DIRECTORY_SEPARATOR, dirname( realpath( $pathName ) ) );
+        $fileParts = array( basename( $file ) );
+        $parts = explode( DIRECTORY_SEPARATOR, dirname( realpath( $file ) ) );
         do {
 
             $root = join( DIRECTORY_SEPARATOR, $parts ) . DIRECTORY_SEPARATOR;
