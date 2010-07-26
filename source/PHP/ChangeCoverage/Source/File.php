@@ -67,19 +67,40 @@ class PHP_ChangeCoverage_Source_File
      */
     private $path = null;
 
+    /**
+     * The executable lines within the context source file.
+     *
+     * @var array(PHP_ChangeCoverage_Source_Line)
+     */
     private $lines = array();
 
+    /**
+     * Constructs a new source file instance.
+     *
+     * @param string $path  Full qualified path for this source file.
+     * @param array  $lines Executable lines in the source file
+     */
     public function __construct( $path, array $lines )
     {
         $this->path  = $path;
         $this->lines = $lines;
     }
 
+    /**
+     * Returns the qualified path for this source file.
+     *
+     * @return string
+     */
     public function getPath()
     {
         return $this->path;
     }
 
+    /**
+     * Returns the executable lines within the context source file.
+     *
+     * @return Iterator
+     */
     public function getLines()
     {
         return new ArrayIterator( $this->lines );
