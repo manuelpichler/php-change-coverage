@@ -113,25 +113,25 @@ class PHP_ChangeCoverage_ChangeSet_VersionControl implements PHP_ChangeCoverage_
      */
     public function calculate()
     {
-        return $this->createChangedLines( $this->file );
+        return $this->blameFile();
     }
 
-    private function createChangedLines( PHP_ChangeCoverage_Source_File $file )
+    private function blameFile()
     {
         foreach ( $this->vcs->getLog() as $log )
         {
             if ( $log->date >= $this->startDate )
             {
-                $this->collectBlameInformation( $file, $log->version );
+                $this->blameFileVersion( $log->version );
             }
         }
-        return $file;
+        return $this->file;
     }
 
-    private function collectBlameInformation( PHP_ChangeCoverage_Source_File $file, $version )
+    private function blameFileVersion( $version )
     {
         $blame = $this->vcs->blame( $version );
-        foreach ( $file->getLines() as $line )
+        foreach ( $this->file->getLines() as $line )
         {
             if ( false === isset( $blame[$line->getNumber() - 1] ) )
             {
