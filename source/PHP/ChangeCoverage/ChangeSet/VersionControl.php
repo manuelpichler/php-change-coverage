@@ -64,6 +64,13 @@ class PHP_ChangeCoverage_ChangeSet_VersionControl implements PHP_ChangeCoverage_
      *
      * @var vcsFile
      */
+    private $vcs = null;
+
+    /**
+     * The context source file.
+     *
+     * @var PHP_ChangeCoverage_Source_File
+     */
     private $file = null;
 
     /**
@@ -76,10 +83,12 @@ class PHP_ChangeCoverage_ChangeSet_VersionControl implements PHP_ChangeCoverage_
     /**
      * Constructs a new version control change set instance.
      *
-     * @param vcsFile $file The context version control backend file.
+     * @param vcsFile                         $vcs The version control meta data.
+     * @param PHP_ChangeCoverage_Source_File $file The context source file.
      */
-    public function __construct( vcsFile $file )
+    public function __construct( vcsFile $vcs, PHP_ChangeCoverage_Source_File $file )
     {
+        $this->vcs  = $vcs;
         $this->file = $file;
     }
 
@@ -100,18 +109,16 @@ class PHP_ChangeCoverage_ChangeSet_VersionControl implements PHP_ChangeCoverage_
      * prepared file instance where the <b>hasChanged()</b> flag is set to
      * <b>true</b>.
      *
-     * @param PHP_ChangeCoverage_Source_File $file The context source file instance.
-     *
      * @return PHP_ChangeCoverage_Source_File
      */
-    public function calculate( PHP_ChangeCoverage_Source_File $file )
+    public function calculate()
     {
-        return $this->createChangedLines( $file );
+        return $this->createChangedLines( $this->file );
     }
 
     private function createChangedLines( PHP_ChangeCoverage_Source_File $file )
     {
-        foreach ( $this->file->getLog() as $log )
+        foreach ( $this->vcs->getLog() as $log )
         {
             if ( $log->date >= $this->startDate )
             {
@@ -123,7 +130,7 @@ class PHP_ChangeCoverage_ChangeSet_VersionControl implements PHP_ChangeCoverage_
 
     private function collectBlameInformation( PHP_ChangeCoverage_Source_File $file, $version )
     {
-        $blame = $this->file->blame( $version );
+        $blame = $this->vcs->blame( $version );
         foreach ( $file->getLines() as $line )
         {
             if ( false === isset( $blame[$line->getNumber() - 1] ) )

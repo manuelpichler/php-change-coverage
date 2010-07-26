@@ -79,9 +79,9 @@ class PHP_ChangeCoverage_ChangeSet_FileSystemUnitTest extends PHP_ChangeCoverage
             )
         );
 
-        $changeSet = new PHP_ChangeCoverage_ChangeSet_FileSystem();
+        $changeSet = new PHP_ChangeCoverage_ChangeSet_FileSystem( $file );
         $changeSet->setStartDate( filemtime( __FILE__ ) - 86400 );
-        $changeSet->calculate( $file );
+        $changeSet->calculate();
 
         self::assertTrue( $file->getLines()->current()->hasChanged() );
     }
@@ -103,9 +103,9 @@ class PHP_ChangeCoverage_ChangeSet_FileSystemUnitTest extends PHP_ChangeCoverage
             )
         );
 
-        $changeSet = new PHP_ChangeCoverage_ChangeSet_FileSystem();
+        $changeSet = new PHP_ChangeCoverage_ChangeSet_FileSystem( $file );
         $changeSet->setStartDate( filemtime( __FILE__ ) + 1 );
-        $changeSet->calculate( $file );
+        $changeSet->calculate();
 
         self::assertFalse( $file->getLines()->current()->hasChanged() );
     }

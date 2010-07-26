@@ -70,11 +70,11 @@ class PHP_ChangeCoverage_ChangeSet_Factory
      */
     public function create( PHP_ChangeCoverage_Source_File $file )
     {
-        if ( is_object( $vcsFile = $this->createVcsFile( $file->getPath() ) ) )
+        if ( is_object( $vcs = $this->createVcsFile( $file->getPath() ) ) )
         {
-            return new PHP_ChangeCoverage_ChangeSet_VersionControl( $vcsFile );
+            return new PHP_ChangeCoverage_ChangeSet_VersionControl( $vcs, $file );
         }
-        return new PHP_ChangeCoverage_ChangeSet_FileSystem();
+        return new PHP_ChangeCoverage_ChangeSet_FileSystem( $file );
     }
 
     /**

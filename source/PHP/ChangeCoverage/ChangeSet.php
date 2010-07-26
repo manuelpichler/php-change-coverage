@@ -70,15 +70,13 @@ interface PHP_ChangeCoverage_ChangeSet
     function setStartDate( $startDate );
 
     /**
-     * Calculates the changed lines for the given source file and returns a
+     * Calculates the changed lines for the contect source file and returns a
      * prepared file instance where the <b>hasChanged()</b> flag is set to
      * <b>true</b>.
      *
-     * @param PHP_ChangeCoverage_Source_File $file The context source file instance.
-     *
      * @return PHP_ChangeCoverage_Source_File
      */
-    function calculate( PHP_ChangeCoverage_Source_File $file );
+    function calculate();
 }
 
 // @codeCoverageIgnoreEnd

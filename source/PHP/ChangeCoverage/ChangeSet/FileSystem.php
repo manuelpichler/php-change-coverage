@@ -69,11 +69,28 @@ class PHP_ChangeCoverage_ChangeSet_FileSystem implements PHP_ChangeCoverage_Chan
     // Ignore the class signature
 
     /**
+     * The context source file.
+     *
+     * @var PHP_ChangeCoverage_Source_File
+     */
+    private $file = null;
+
+    /**
      * Unix timestamp representing the start date of this changeset.
      *
      * @var integer
      */
     private $startDate = null;
+
+    /**
+     * Constructs a new changeset instance.
+     *
+     * @param PHP_ChangeCoverage_Source_File $file The context source file.
+     */
+    public function __construct( PHP_ChangeCoverage_Source_File $file )
+    {
+        $this->file = $file;
+    }
 
     /**
      * Sets the start date as an unix timestamp for this changeset.
@@ -88,34 +105,30 @@ class PHP_ChangeCoverage_ChangeSet_FileSystem implements PHP_ChangeCoverage_Chan
     }
 
     /**
-     * Calculates the changed lines for the given source file and returns a
+     * Calculates the changed lines for the context source file and returns a
      * prepared file instance where the <b>hasChanged()</b> flag is set to
      * <b>true</b>.
      *
-     * @param PHP_ChangeCoverage_Source_File $file The context source file instance.
-     *
      * @return PHP_ChangeCoverage_Source_File
      */
-    public function calculate( PHP_ChangeCoverage_Source_File $file )
+    public function calculate()
     {
-        if ( filemtime( $file->getPath() ) >= $this->startDate )
+        if ( filemtime( $this->file->getPath() ) >= $this->startDate )
         {
-            $this->updateChangedStatus( $file );
+            $this->updateChangedStatus();
         }
-        return $file;
+        return $this->file;
     }
 
     /**
-     * This method updates the changed status of all lines in the given source
+     * This method updates the changed status of all lines in the context source
      * file to <b>true</b>.
-     *
-     * @param PHP_ChangeCoverage_Source_File $file The context source file instance.
      *
      * @return void
      */
-    protected function updateChangedStatus( PHP_ChangeCoverage_Source_File $file )
+    protected function updateChangedStatus()
     {
-        foreach ( $file->getLines() as $line )
+        foreach ( $this->file->getLines() as $line )
         {
             $line->setChanged();
         }
