@@ -46,14 +46,10 @@
  * @link       http://pdepend.org/
  */
 
-require_once 'PHPUnit/Framework/TestSuite.php';
-
-require_once dirname( __FILE__ ) . '/FactoryUnitTest.php';
-require_once dirname( __FILE__ ) . '/FileSystemUnitTest.php';
-require_once dirname( __FILE__ ) . '/VersionControlUnitTest.php';
+require_once dirname( __FILE__ ) . '/../AbstractTestCase.php';
 
 /**
- * Test suite for the changeset sub package.
+ * Unit tests for class {@link PHP_ChangeCoverage_ChangeSet_FileSystem}.
  *
  * @category   QualityAssurance
  * @package    PHP_ChangeCoverage
@@ -64,31 +60,53 @@ require_once dirname( __FILE__ ) . '/VersionControlUnitTest.php';
  * @version    Release: @package_version@
  * @link       http://pdepend.org/
  */
-class PHP_ChangeCoverage_ChangeSet_AllTests extends PHPUnit_Framework_TestSuite
+class PHP_ChangeCoverage_ChangeSet_FileSystemUnitTest extends PHP_ChangeCoverage_AbstractTestCase
 {
     /**
-     * Constructs a new test suite instance.
+     * testCalculateFlagsLinesChangedWhenFilemtimeIsInDateRange
+     *
+     * @return void
+     * @covers PHP_ChangeCoverage_ChangeSet_FileSystem
+     * @group changeset
+     * @group unittest
      */
-    public function __construct()
+    public function testCalculateFlagsLinesChangedWhenFilemtimeIsInDateRange()
     {
-        $this->setName( 'PHP::ChangeCoverage::ChangeSet::AllTests' );
-
-        PHPUnit_Util_Filter::addDirectoryToWhitelist(
-            realpath( dirname( __FILE__ ) . '/../../../../source/' )
+        $file = new PHP_ChangeCoverage_Source_File(
+            __FILE__,
+            array(
+                new PHP_ChangeCoverage_Source_Line(  __LINE__, 1 )
+            )
         );
 
-        $this->addTestSuite( 'PHP_ChangeCoverage_ChangeSet_FactoryUnitTest' );
-        $this->addTestSuite( 'PHP_ChangeCoverage_ChangeSet_FileSystemUnitTest' );
-        $this->addTestSuite( 'PHP_ChangeCoverage_ChangeSet_VersionControlUnitTest' );
+        $changeSet = new PHP_ChangeCoverage_ChangeSet_FileSystem();
+        $changeSet->setStartDate( filemtime( __FILE__ ) - 86400 );
+        $changeSet->calculate( $file );
+
+        self::assertTrue( $file->getLines()->current()->hasChanged() );
     }
 
     /**
-     * Creates a new test suite instance.
+     * testCalculateNotFlagsLinesChangedWhenFilemtimeIsNotInDateRange
      *
-     * @return PHPUnit_Framework_TestSuite
+     * @return void
+     * @covers PHP_ChangeCoverage_ChangeSet_FileSystem
+     * @group changeset
+     * @group unittest
      */
-    public static function suite()
+    public function testCalculateNotFlagsLinesChangedWhenFilemtimeIsNotInDateRange()
     {
-        return new PHP_ChangeCoverage_ChangeSet_AllTests();
+        $file = new PHP_ChangeCoverage_Source_File(
+            __FILE__,
+            array(
+                new PHP_ChangeCoverage_Source_Line(  __LINE__, 1 )
+            )
+        );
+
+        $changeSet = new PHP_ChangeCoverage_ChangeSet_FileSystem();
+        $changeSet->setStartDate( filemtime( __FILE__ ) + 1 );
+        $changeSet->calculate( $file );
+
+        self::assertFalse( $file->getLines()->current()->hasChanged() );
     }
 }

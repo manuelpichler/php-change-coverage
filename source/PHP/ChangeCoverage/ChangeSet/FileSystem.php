@@ -46,14 +46,9 @@
  * @link       http://pdepend.org/
  */
 
-require_once 'PHPUnit/Framework/TestSuite.php';
-
-require_once dirname( __FILE__ ) . '/FactoryUnitTest.php';
-require_once dirname( __FILE__ ) . '/FileSystemUnitTest.php';
-require_once dirname( __FILE__ ) . '/VersionControlUnitTest.php';
-
 /**
- * Test suite for the changeset sub package.
+ * This class implements a simple/fallback changeset that uses the file
+ * modification time to calculate the changed source lines.
  *
  * @category   QualityAssurance
  * @package    PHP_ChangeCoverage
@@ -64,31 +59,58 @@ require_once dirname( __FILE__ ) . '/VersionControlUnitTest.php';
  * @version    Release: @package_version@
  * @link       http://pdepend.org/
  */
-class PHP_ChangeCoverage_ChangeSet_AllTests extends PHPUnit_Framework_TestSuite
+class PHP_ChangeCoverage_ChangeSet_FileSystem implements PHP_ChangeCoverage_ChangeSet
 {
     /**
-     * Constructs a new test suite instance.
+     * Unix timestamp representing the start date of this changeset.
+     *
+     * @var integer
      */
-    public function __construct()
+    private $startDate = null;
+
+    /**
+     * Sets the start date as an unix timestamp for this changeset.
+     *
+     * @param integer $startDate The changset's start date.
+     *
+     * @return void
+     */
+    public function setStartDate( $startDate )
     {
-        $this->setName( 'PHP::ChangeCoverage::ChangeSet::AllTests' );
-
-        PHPUnit_Util_Filter::addDirectoryToWhitelist(
-            realpath( dirname( __FILE__ ) . '/../../../../source/' )
-        );
-
-        $this->addTestSuite( 'PHP_ChangeCoverage_ChangeSet_FactoryUnitTest' );
-        $this->addTestSuite( 'PHP_ChangeCoverage_ChangeSet_FileSystemUnitTest' );
-        $this->addTestSuite( 'PHP_ChangeCoverage_ChangeSet_VersionControlUnitTest' );
+        $this->startDate = $startDate;
     }
 
     /**
-     * Creates a new test suite instance.
+     * Calculates the changed lines for the given source file and returns a
+     * prepared file instance where the <b>hasChanged()</b> flag is set to
+     * <b>true</b>.
      *
-     * @return PHPUnit_Framework_TestSuite
+     * @param PHP_ChangeCoverage_Source_File $file The context source file instance.
+     *
+     * @return PHP_ChangeCoverage_Source_File
      */
-    public static function suite()
+    public function calculate( PHP_ChangeCoverage_Source_File $file )
     {
-        return new PHP_ChangeCoverage_ChangeSet_AllTests();
+        if ( filemtime( $file->getPath() ) >= $this->startDate )
+        {
+            $this->updateChangedStatus( $file );
+        }
+        return $file;
+    }
+
+    /**
+     * This method updates the changed status of all lines in the given source
+     * file to <b>true</b>.
+     *
+     * @param PHP_ChangeCoverage_Source_File $file The context source file instance.
+     *
+     * @return void
+     */
+    protected function updateChangedStatus( PHP_ChangeCoverage_Source_File $file )
+    {
+        foreach ( $file->getLines() as $line )
+        {
+            $line->setChanged();
+        }
     }
 }
