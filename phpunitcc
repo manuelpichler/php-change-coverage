@@ -58,7 +58,7 @@ if ( file_exists( $cloverFile ) && ( $cloverUpdate || $coverageHtml ) )
     $codeCoverage = new PHP_CodeCoverage();
     
 
-    $factory = new PHP_ChangeCoverage_VersionControl_Factory( dirname( __FILE__ ) . '/library/vcs_wrapper/src/classes' );
+    $factory = new PHP_ChangeCoverage_ChangeSet_Factory( dirname( __FILE__ ) . '/library/vcs_wrapper/src/classes' );
     vcsCache::initialize( sys_get_temp_dir() . '/cc-cache' );
 
     echo PHP_EOL, 'Collecting commits and meta data, this may take a moment.', PHP_EOL, PHP_EOL;

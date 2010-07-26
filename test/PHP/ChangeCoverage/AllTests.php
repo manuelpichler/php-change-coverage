@@ -4,6 +4,8 @@ require_once 'PHPUnit/Framework.php';
 
 require_once dirname( __FILE__ ) . '/Source/AllTests.php';
 
+require_once dirname( __FILE__ ) . '/XdebugUnitTest.php';
+
 class PHP_ChangeCoverage_AllTests extends PHPUnit_Framework_TestSuite
 {
     /**
@@ -18,6 +20,8 @@ class PHP_ChangeCoverage_AllTests extends PHPUnit_Framework_TestSuite
         );
 
         $this->addTest( PHP_ChangeCoverage_Source_AllTests::suite() );
+
+        $this->addTestSuite( 'PHP_ChangeCoverage_XdebugUnitTest' );
     }
 
     public static function suite()

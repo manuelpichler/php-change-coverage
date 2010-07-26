@@ -2,7 +2,7 @@
 
 require_once 'PHPUnit/Framework.php';
 
-class PHP_ChangeCoverage_VersionControl_AllTests extends PHPUnit_Framework_TestSuite
+class PHP_ChangeCoverage_ChangeSet_AllTests extends PHPUnit_Framework_TestSuite
 {
     /**
      * Constructs a new test suite instance.
@@ -18,6 +18,6 @@ class PHP_ChangeCoverage_VersionControl_AllTests extends PHPUnit_Framework_TestS
 
     public static function suite()
     {
-        return new PHP_ChangeCoverage_VersionControl_AllTests();
+        return new PHP_ChangeCoverage_ChangeSet_AllTests();
     }
 }

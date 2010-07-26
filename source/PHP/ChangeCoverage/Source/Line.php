@@ -25,13 +25,15 @@ class PHP_ChangeCoverage_Source_Line
     /**
      * Constructs a new source line instance.
      *
-     * @param integer $number The line number.
-     * @param integer $count  How often was this line executed.
+     * @param integer $number  The line number.
+     * @param integer $count   How often was this line executed.
+     * @param boolean $changed Optional third argument that flags this line changed.
      */
-    public function __construct( $number, $count )
+    public function __construct( $number, $count, $changed = false )
     {
-        $this->number = $number;
-        $this->count  = $count;
+        $this->number  = $number;
+        $this->count   = $count;
+        $this->changed = $changed;
     }
 
     /**
@@ -70,14 +72,15 @@ class PHP_ChangeCoverage_Source_Line
     }
 
     /**
-     * Decrements the number of executions for this line.
+     * Decrements the number of executions for this line and returns the new
+     * count for this line.
      *
-     * @return void
+     * @return integer
      * @todo This is not good. Decrementing should happen somewhere else in a
      *       temporary data structured.
      */
     public function decrementCount()
     {
-        --$this->count;
+        return (--$this->count);
     }
 }

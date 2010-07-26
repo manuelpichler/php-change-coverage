@@ -63,9 +63,9 @@ class PHP_ChangeCoverage_Xdebug
     /**
      * The changeset for the context source file.
      *
-     * @var PHP_ChangeCoverage_VersionControl_Resource
+     * @var PHP_ChangeCoverage_Source_File
      */
-    private $changeSet = null;
+    private $file = null;
 
     /**
      * Should the collect coverage implementation stop execution.
@@ -75,15 +75,24 @@ class PHP_ChangeCoverage_Xdebug
     private $stopExecution = false;
 
     /**
-     * Constructs a new xdebug coverage data instance.
+     * This method generates an iterator that contains several arrays identical
+     * to those created by debug.
      *
-     * @param PHP_ChangeCoverage_VersionControl_Resource $changeSet Changeset
-     *        for the parsed/context source file.
+     * @param PHP_ChangeCoverage_Source_File $file The context source file from
+     *        which we would like to know the change coverage..
+     * 
+     * @return Iterator
      */
-    public function __construct(
-        PHP_ChangeCoverage_VersionControl_Resource $changeSet
-    ) {
-        $this->changeSet = $changeSet;
+    public function generateData( PHP_ChangeCoverage_Source_File $file )
+    {
+        $this->file = $file;
+
+        $data = array();
+        while ( is_array( $xdebug = $this->getCoverage() ) )
+        {
+            $data[] = $xdebug;
+        }
+        return new ArrayIterator( $data );
     }
 
     /**
@@ -95,10 +104,11 @@ class PHP_ChangeCoverage_Xdebug
      *
      * @return array(integer=>integer)
      */
-    public function getCoverage()
+    protected function getCoverage()
     {
         if ( $this->stopExecution )
         {
+            $this->stopExecution = false;
             return null;
         }
         return $this->createXdebugCoverageArray();
@@ -118,7 +128,7 @@ class PHP_ChangeCoverage_Xdebug
         $this->stopExecution = true;
 
         $xdebug = array();
-        foreach ( $this->changeSet->getLines() as $line )
+        foreach ( $this->file->getLines() as $line )
         {
             if ( $line->hasChanged( $line ) )
             {
@@ -128,9 +138,10 @@ class PHP_ChangeCoverage_Xdebug
                 }
                 else
                 {
-                    $this->stopExecution = false;
-
-                    $line->decrementCount();
+                    if ( $line->decrementCount() > 0 )
+                    {
+                        $this->stopExecution = false;
+                    }
                     $xdebug[$line->getNumber()] = 1;
                 }
             }
@@ -139,6 +150,6 @@ class PHP_ChangeCoverage_Xdebug
                 $xdebug[$line->getNumber()] = -2;
             }
         }
-        return array( $this->changeSet->getPath() => $xdebug );
+        return array( $this->file->getPath() => $xdebug );
     }
 }

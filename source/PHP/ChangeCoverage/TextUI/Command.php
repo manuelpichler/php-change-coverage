@@ -243,19 +243,21 @@ class PHP_ChangeCoverage_TextUI_Command
         $codeCoverage = new PHP_CodeCoverage();
 
 
-        $factory = new PHP_ChangeCoverage_VersionControl_Factory();
+        $factory = new PHP_ChangeCoverage_ChangeSet_Factory();
         vcsCache::initialize( $this->tempDirectory );
 
         echo PHP_EOL, 'Collecting commits and meta data, this may take a moment.', PHP_EOL, PHP_EOL;
+
+        $xdebug = new PHP_ChangeCoverage_Xdebug();
 
         foreach ( $report->getFiles() as $file )
         {
             $resource = $factory->create( $file );
             $resource->setStartDate( $this->modifiedSince );
+            
+            $file = $resource->calculate( $file );
 
-            $xdebug = new PHP_ChangeCoverage_Xdebug( $resource );
-
-            while ( $data = $xdebug->getCoverage() )
+            foreach ( $xdebug->generateData( $file ) as $data )
             {
                 $codeCoverage->append( $data, md5( microtime() ) );
             }
