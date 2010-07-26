@@ -103,7 +103,7 @@ abstract class PHP_ChangeCoverage_AbstractTestCase extends PHPUnit_Framework_Tes
     }
 
     /**
-     * Creates a temp
+     * Creates a temporary directory for the given local name.
      *
      * @param string $directory Local directory name.
      *
@@ -111,8 +111,30 @@ abstract class PHP_ChangeCoverage_AbstractTestCase extends PHPUnit_Framework_Tes
      */
     protected function createDirectory( $directory )
     {
+        if ( $directory === '.' || $directory === '/' || $directory === '' )
+        {
+            return $this->createTempDirectory();
+        }
         $path = $this->createTempDirectory() . '/' . $directory;
         mkdir( $path, 0755, true );
+        return $path;
+    }
+
+    /**
+     * Creates a temporary file with the given data as content.
+     *
+     * @param string $file Local file name.
+     * @param string $data The file contents.
+     *
+     * @return string
+     */
+    protected function createFile( $file, $data )
+    {
+        $path  = $this->createDirectory( dirname( $file ) );
+        $path .= '/' . basename( $file );
+
+        file_put_contents( $path , $data );
+
         return $path;
     }
 

@@ -38,7 +38,7 @@
  *
  * @category   QualityAssurance
  * @package    PHP_ChangeCoverage
- * @subpackage VersionControl
+ * @subpackage Report
  * @author     Manuel Pichler <mapi@pdepend.org>
  * @copyright  2010 Manuel Pichler. All rights reserved.
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
@@ -46,44 +46,69 @@
  * @link       http://pdepend.org/
  */
 
+require_once dirname( __FILE__ ) . '/../AbstractTestCase.php';
+
 /**
- * This factory creates report instances for a given coverage xml report file.
+ * Unit tests for class {@link PHP_ChangeCoverage_Report_Factory}.
  *
  * @category   QualityAssurance
  * @package    PHP_ChangeCoverage
- * @subpackage VersionControl
+ * @subpackage Report
  * @author     Manuel Pichler <mapi@pdepend.org>
  * @copyright  2010 Manuel Pichler. All rights reserved.
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @version    Release: @package_version@
  * @link       http://pdepend.org/
  */
-class PHP_ChangeCoverage_Report_Factory
+class PHP_ChangeCoverage_Report_FactoryUnitTest extends PHP_ChangeCoverage_AbstractTestCase
 {
     /**
-     * This method takes the given file and checks if it is a support coverage
-     * report format and then creates a report instance for this format. If
-     * the given file format is not supported or the file does not exist, this
-     * method will throw exception.
+     * testFactoryThrowsExceptionWhenReportFileDoesNotExist
      *
-     * @param string $fileName The coverage xml report file.
-     *
-     * @return PHP_ChangeCoverage_Report
-     * @throws RuntimeException When the given file does not exist or if the
-     *         given file uses an unsupported coverage format.
+     * @return void
+     * @covers PHP_ChangeCoverage_Report_Factory
+     * @group report
+     * @group unittest
+     * @expectedException RuntimeException
      */
-    public function createReport( $fileName )
+    public function testFactoryThrowsExceptionWhenReportFileDoesNotExist()
     {
-        if ( false === file_exists( $fileName ) )
-        {
-            throw new RuntimeException( "File '{$fileName} does not exist." );
-        }
+        $fileName = $this->createDirectory( 'coverage' ) . '/report.xml';
 
-        $sxml = simplexml_load_file( $fileName );
-        if ( isset( $sxml->project ) )
-        {
-            return new PHP_ChangeCoverage_Report_Clover( $sxml );
-        }
-        throw new RuntimeException( 'The given report format is not supported.' );
+        $factory = new PHP_ChangeCoverage_Report_Factory();
+        $factory->createReport( $fileName );
+    }
+
+    /**
+     * testFactoryThrowsExceptionForUnsupportedReportFormat
+     *
+     * @return void
+     * @covers PHP_ChangeCoverage_Report_Factory
+     * @group report
+     * @group unittest
+     * @expectedException RuntimeException
+     */
+    public function testFactoryThrowsExceptionForUnsupportedReportFormat()
+    {
+        $fileName = $this->createFile( 'report.xml', '<coverage><report/></coverage>' );
+
+        $factory = new PHP_ChangeCoverage_Report_Factory();
+        $factory->createReport( $fileName );
+    }
+
+    /**
+     * testFactoryCreatesCloverReportForCloverReportFormat
+     *
+     * @return void
+     * @covers PHP_ChangeCoverage_Report_Factory
+     * @group report
+     * @group unittest
+     */
+    public function testFactoryCreatesCloverReportForCloverReportFormat()
+    {
+        $fileName = $this->createFile( 'report.xml', '<coverage><project/></coverage>' );
+
+        $factory = new PHP_ChangeCoverage_Report_Factory();
+        $report  = $factory->createReport( $fileName );
     }
 }

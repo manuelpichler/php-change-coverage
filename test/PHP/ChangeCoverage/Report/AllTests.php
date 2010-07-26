@@ -36,60 +36,55 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *
- * @category  QualityAssurance
- * @package   PHP_ChangeCoverage
- * @author    Manuel Pichler <mapi@pdepend.org>
- * @copyright 2010 Manuel Pichler. All rights reserved.
- * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @version   SVN: $Id$
- * @link      http://pdepend.org/
+ * @category   QualityAssurance
+ * @package    PHP_ChangeCoverage
+ * @subpackage Report
+ * @author     Manuel Pichler <mapi@pdepend.org>
+ * @copyright  2010 Manuel Pichler. All rights reserved.
+ * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
+ * @version    SVN: $Id$
+ * @link       http://pdepend.org/
  */
 
 require_once 'PHPUnit/Framework/TestSuite.php';
 
-require_once dirname( __FILE__ ) . '/ChangeSet/AllTests.php';
-require_once dirname( __FILE__ ) . '/Source/AllTests.php';
-require_once dirname( __FILE__ ) . '/Report/AllTests.php';
-
-require_once dirname( __FILE__ ) . '/XdebugUnitTest.php';
+require_once dirname( __FILE__ ) . '/FactoryUnitTest.php';
 
 /**
- * Main test suite for the change coverage application.
+ * Test suite for the report sub package.
  *
- * @category  QualityAssurance
- * @package   PHP_ChangeCoverage
- * @author    Manuel Pichler <mapi@pdepend.org>
- * @copyright 2010 Manuel Pichler. All rights reserved.
- * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @version   Release: @package_version@
- * @link      http://pdepend.org/
+ * @category   QualityAssurance
+ * @package    PHP_ChangeCoverage
+ * @subpackage Report
+ * @author     Manuel Pichler <mapi@pdepend.org>
+ * @copyright  2010 Manuel Pichler. All rights reserved.
+ * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
+ * @version    Release: @package_version@
+ * @link       http://pdepend.org/
  */
-class PHP_ChangeCoverage_AllTests extends PHPUnit_Framework_TestSuite
+class PHP_ChangeCoverage_Report_AllTests extends PHPUnit_Framework_TestSuite
 {
     /**
      * Constructs a new test suite instance.
      */
     public function __construct()
     {
-        $this->setName( 'PHP::ChangeCoverage::AllTests' );
+        $this->setName( 'PHP::ChangeCoverage::Report::AllTests' );
 
         PHPUnit_Util_Filter::addDirectoryToWhitelist(
-            realpath( dirname( __FILE__ ) . '/../../../source/' )
+            realpath( dirname( __FILE__ ) . '/../../../../source/' )
         );
 
-        $this->addTest( PHP_ChangeCoverage_ChangeSet_AllTests::suite() );
-        $this->addTest( PHP_ChangeCoverage_Source_AllTests::suite() );
-        $this->addTest( PHP_ChangeCoverage_Report_AllTests::suite() );
-
-        $this->addTestSuite( 'PHP_ChangeCoverage_XdebugUnitTest' );
+        $this->addTestSuite( 'PHP_ChangeCoverage_Report_FactoryUnitTest' );
     }
 
     /**
+     * Creates a new test suite instance.
      *
-     * @return PHP_ChangeCoverage_AllTests
+     * @return PHPUnit_Framework_TestSuite
      */
     public static function suite()
     {
-        return new PHP_ChangeCoverage_AllTests();
+        return new PHP_ChangeCoverage_Report_AllTests();
     }
 }
