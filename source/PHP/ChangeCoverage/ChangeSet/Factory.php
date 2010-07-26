@@ -62,8 +62,17 @@ class PHP_ChangeCoverage_ChangeSet_Factory
 
     public function create( PHP_ChangeCoverage_Source_File $file )
     {
-        $fileParts = array( basename( $file->getPath() ) );
-        $parts = explode( DIRECTORY_SEPARATOR, dirname( realpath( $file->getPath() ) ) );
+        if ( is_object( $vcsFile = $this->createVcsFile( $file->getPath() ) ) )
+        {
+            return new PHP_ChangeCoverage_ChangeSet_VersionControl( $vcsFile );
+        }
+        return new PHP_ChangeCoverage_ChangeSet_FileSystem();
+    }
+
+    protected function createVcsFile( $pathName )
+    {
+        $fileParts = array( basename( $pathName ) );
+        $parts = explode( DIRECTORY_SEPARATOR, dirname( realpath( $pathName ) ) );
         do {
 
             $root = join( DIRECTORY_SEPARATOR, $parts ) . DIRECTORY_SEPARATOR;
@@ -77,12 +86,14 @@ class PHP_ChangeCoverage_ChangeSet_Factory
                 }
                 else
                 {
+                    // @codeCoverageIgnoreStart
                     return new vcsSvnCliFile( $root, $path );
+                    // @codeCoverageIgnoreEnd
                 }
             }
             else if ( file_exists( $root . '.git' ) )
             {
-                return new PHP_ChangeCoverage_ChangeSet_VersionControl( new vcsGitCliFile( $root, $path ), $file );
+                return new vcsGitCliFile( $root, $path );
             }
             else if ( file_exists( $root . '.hg' ) )
             {
@@ -96,14 +107,16 @@ class PHP_ChangeCoverage_ChangeSet_Factory
             {
                 return new vcsCvsCliFile( $root, $path );
             }
-            
+
             if ( ( $part = array_pop( $parts ) ) === null )
             {
-                throw new RuntimeException( 'No more elements found.' );
+                break;
             }
-            
+
             array_unshift( $fileParts, $part );
-            
+
         } while ( true );
+
+        return null;
     }
 }
