@@ -186,20 +186,27 @@ class PHP_ChangeCoverage_ChangeSet_VersionControlUnitTest extends PHP_ChangeCove
         return $fileStub;
     }
 
+    /**
+     * Creates a faked revision log entry.
+     *
+     * @param array $log Log entry data.
+     *
+     * @return vcsLogEntry
+     */
     protected function createLogEntry( array $log )
     {
-        $obj          = new stdClass();
-        $obj->version = $log[0];
-        $obj->date    = $log[1];
-
-        return $obj;
+        return new vcsLogEntry( $log[0], null, null, $log[1] );
     }
 
+    /**
+     * Creates a faked line blame entry.
+     *
+     * @param integer $date Blame data.
+     *
+     * @return vcsBlameStruct
+     */
     protected function createBlameEntry( $date )
     {
-        $obj       = new stdClass();
-        $obj->date = $date;
-
-        return $obj;
+        return new vcsBlameStruct( null, null, null, $date );
     }
 }

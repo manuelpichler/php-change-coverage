@@ -77,9 +77,9 @@ class PHP_ChangeCoverage_ChangeSet_AllTests extends PHPUnit_Framework_TestSuite
             realpath( dirname( __FILE__ ) . '/../../../../source/' )
         );
 
-        $this->addTestSuite( 'PHP_ChangeCoverage_ChangeSet_FactoryUnitTest' );
         $this->addTestSuite( 'PHP_ChangeCoverage_ChangeSet_FileSystemUnitTest' );
         $this->addTestSuite( 'PHP_ChangeCoverage_ChangeSet_VersionControlUnitTest' );
+        $this->addTestSuite( 'PHP_ChangeCoverage_ChangeSet_FactoryUnitTest' );
     }
 
     /**

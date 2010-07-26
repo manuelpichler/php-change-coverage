@@ -47,6 +47,8 @@
  */
 
 /**
+ * ChangeSet implementation that uses the meta data of a revision control
+ * system to calculate the changes of the context source file.
  *
  * @category   QualityAssurance
  * @package    PHP_ChangeCoverage
@@ -105,7 +107,7 @@ class PHP_ChangeCoverage_ChangeSet_VersionControl implements PHP_ChangeCoverage_
     }
 
     /**
-     * Calculates the changed lines for the given source file and returns a
+     * Calculates the changed lines for the context source file and returns a
      * prepared file instance where the <b>hasChanged()</b> flag is set to
      * <b>true</b>.
      *
@@ -113,34 +115,63 @@ class PHP_ChangeCoverage_ChangeSet_VersionControl implements PHP_ChangeCoverage_
      */
     public function calculate()
     {
-        return $this->blameFile();
+        return $this->calculateChangedVersions();
     }
 
-    private function blameFile()
+    /**
+     * This method calculates the changed lines within the specified time range
+     * for the context file and flags all changed lines as changed.
+     *
+     * @return PHP_ChangeCoverage_Source_File
+     */
+    protected function calculateChangedVersions()
     {
         foreach ( $this->vcs->getLog() as $log )
         {
             if ( $log->date >= $this->startDate )
             {
-                $this->blameFileVersion( $log->version );
+                $this->calculateChangedLinesForVersion( $log->version );
             }
         }
         return $this->file;
     }
 
-    private function blameFileVersion( $version )
+    /**
+     * This method calculates the changed lines within the specified time range
+     * and the given version for the context file and flags all changed lines
+     * as changed.
+     *
+     * @param string|integer $version The vcs version to check.
+     *
+     * @return void
+     */
+    protected function calculateChangedLinesForVersion( $version )
     {
         $blame = $this->vcs->blame( $version );
         foreach ( $this->file->getLines() as $line )
         {
-            if ( false === isset( $blame[$line->getNumber() - 1] ) )
+            if ( isset( $blame[$line->getNumber() - 1] ) )
             {
-                continue;
+                $this->flagChangedLines( $line, $blame[$line->getNumber() - 1] );
             }
-            if ( $blame[$line->getNumber() - 1]->date < $this->startDate )
-            {
-                continue;
-            }
+        }
+    }
+
+    /**
+     * This method flags the given line as changed when the given modification
+     * was done within the specified time range.
+     *
+     * @param PHP_ChangeCoverage_Source_Line $line  The context source line.
+     * @param vcsBlameStruct                 $blame The blame data for the line.
+     *
+     * @return void
+     */
+    protected function flagChangedLines(
+        PHP_ChangeCoverage_Source_Line $line,
+        vcsBlameStruct $blame
+    ) {
+        if ( $blame->date >= $this->startDate )
+        {
             $line->setChanged();
         }
     }

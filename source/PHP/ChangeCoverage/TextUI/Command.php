@@ -252,12 +252,10 @@ class PHP_ChangeCoverage_TextUI_Command
 
         foreach ( $report->getFiles() as $file )
         {
-            $resource = $factory->create( $file );
-            $resource->setStartDate( $this->modifiedSince );
+            $changeSet = $factory->create( $file );
+            $changeSet->setStartDate( $this->modifiedSince );
             
-            $file = $resource->calculate( $file );
-
-            foreach ( $xdebug->generateData( $file ) as $data )
+            foreach ( $xdebug->generateData( $changeSet->calculate() ) as $data )
             {
                 $codeCoverage->append( $data, md5( microtime() ) );
             }
