@@ -46,6 +46,9 @@
  * @link       http://pdepend.org/
  */
 
+// Ignore the class signature
+// @codeCoverageIgnoreStart
+
 /**
  * This class implements a simple/fallback changeset that uses the file
  * modification time to calculate the changed source lines.
@@ -61,6 +64,10 @@
  */
 class PHP_ChangeCoverage_ChangeSet_FileSystem implements PHP_ChangeCoverage_ChangeSet
 {
+
+    // @codeCoverageIgnoreEnd
+    // Ignore the class signature
+
     /**
      * Unix timestamp representing the start date of this changeset.
      *

@@ -46,6 +46,9 @@
  * @link       http://pdepend.org/
  */
 
+// Ignore the class signature
+// @codeCoverageIgnoreStart
+
 /**
  * This class represents a single executable line within a source file.
  *
@@ -60,6 +63,10 @@
  */
 class PHP_ChangeCoverage_Source_Line
 {
+
+    // @codeCoverageIgnoreEnd
+    // Ignore the class signature
+    
     /**
      * The line number.
      *

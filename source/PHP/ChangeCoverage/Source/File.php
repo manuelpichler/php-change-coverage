@@ -46,6 +46,9 @@
  * @link       http://pdepend.org/
  */
 
+// Ignore the class signature
+// @codeCoverageIgnoreStart
+
 /**
  * This class represents a single source file within the analyzed project.
  *
@@ -60,6 +63,10 @@
  */
 class PHP_ChangeCoverage_Source_File
 {
+
+    // @codeCoverageIgnoreEnd
+    // Ignore the class signature
+
     /**
      * The qualified path for this source file.
      *

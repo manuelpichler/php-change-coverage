@@ -45,6 +45,8 @@
  * @link      http://pdepend.org/
  */
 
+// @codeCoverageIgnoreStart
+
 /**
  * Base interface representing a changeset for a given file.
  *
@@ -78,3 +80,5 @@ interface PHP_ChangeCoverage_ChangeSet
      */
     function calculate( PHP_ChangeCoverage_Source_File $file );
 }
+
+// @codeCoverageIgnoreEnd
