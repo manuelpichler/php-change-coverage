@@ -48,6 +48,7 @@
 
 require_once 'PHPUnit/Framework/TestSuite.php';
 
+require_once dirname( __FILE__ ) . '/CloverUnitTest.php';
 require_once dirname( __FILE__ ) . '/FactoryUnitTest.php';
 
 /**
@@ -75,6 +76,7 @@ class PHP_ChangeCoverage_Report_AllTests extends PHPUnit_Framework_TestSuite
             realpath( dirname( __FILE__ ) . '/../../../../source/' )
         );
 
+        $this->addTestSuite( 'PHP_ChangeCoverage_Report_CloverUnitTest' );
         $this->addTestSuite( 'PHP_ChangeCoverage_Report_FactoryUnitTest' );
     }
 

@@ -46,8 +46,10 @@
  * @link       http://pdepend.org/
  */
 
+require_once dirname( __FILE__ ) . '/../AbstractTestCase.php';
+
 /**
- * Report implementation for xml log files compatible with clover.
+ * Unit tests for class {@link PHP_ChangeCoverage_Report_Clover}.
  *
  * @category   QualityAssurance
  * @package    PHP_ChangeCoverage
@@ -58,65 +60,81 @@
  * @version    Release: @package_version@
  * @link       http://pdepend.org/
  */
-class PHP_ChangeCoverage_Report_Clover extends IteratorIterator implements PHP_ChangeCoverage_Report
+class PHP_ChangeCoverage_Report_CloverUnitTest extends PHP_ChangeCoverage_AbstractTestCase
 {
+    private $cloverFixture = '<?xml version="1.0"?>
+        <coverage>
+            <project>
+                <file name="/foo.php">
+                    <line num="17" count="2" type="method" />
+                    <line num="23" count="2" type="stmt" />
+                    <line num="42" count="2" type="stmt" />
+                </file>
+                <file name="/bar.php">
+                    <line num="17" count="2" type="method" />
+                    <line num="23" count="2" type="stmt" />
+                    <line num="42" count="2" type="stmt" />
+                </file>
+                <file name="/baz.php">
+                    <line num="17" count="2" type="method" />
+                    <line num="23" count="2" type="stmt" />
+                    <line num="42" count="2" type="stmt" />
+                </file>
+            </project>
+        </coverage>';
+
     /**
-     * Constructs a new clover coverage report instance.
+     * testGetFilesReturnsAnIteratorInstance
      *
-     * @param SimpleXMLElement $sxml Simple xml representation of the clover report.
+     * @return void
+     * @covers PHP_ChangeCoverage_Report_Clover
+     * @group report
+     * @group unittest
      */
-    public function __construct( SimpleXMLElement $sxml )
+    public function testGetFilesReturnsAnIteratorInstance()
     {
-        parent::__construct( $sxml->project->file );
-        $this->rewind();
+        $report = $this->createCloverReport();
+        self::assertType( 'Iterator', $report->getFiles() );
     }
 
     /**
-     * Returns an iterator of {@link PHP_ChangeCoverage_Source_File} objects
-     * representing those files available in the coverage report file.
+     * testGetFilesIteratorContainsExpectedNumberEntries
      *
-     * @return Iterator
+     * @return void
+     * @covers PHP_ChangeCoverage_Report_Clover
+     * @group report
+     * @group unittest
      */
-    public function getFiles()
+    public function testGetFilesIteratorContainsExpectedNumberEntries()
     {
-        return $this;
+        $report = $this->createCloverReport();
+        self::assertEquals( 3, iterator_count( $report->getFiles() ) );
     }
 
     /**
-     * Returns a source file instance for the currently active file node in the
-     * context clover report or <b>null</b> when the iterator has reached the
-     * end.
+     * testGetFilesIteratorContainsSourceFileInstances
      *
-     * @return PHP_ChangeCoverage_Source_File
+     * @return void
+     * @covers PHP_ChangeCoverage_Report_Clover
+     * @group report
+     * @group unittest
      */
-    public function current()
+    public function testGetFilesIteratorContainsSourceFileInstances()
     {
-        $sxml = parent::current();
-        return ( is_object( $sxml ) ? $this->createSourceFile( $sxml ) : null );
+        $report = $this->createCloverReport();
+        self::assertType( 'PHP_ChangeCoverage_Source_File', $report->getFiles()->current() );
     }
 
     /**
-     * This method takes the xml representation of a covered file and creates
-     * the corresponding source file instance.
+     * Creates a test fixture.
      *
-     * @param SimpleXMLElement $file The xml representation of a covered file.
-     *
-     * @return PHP_ChangeCoverage_Source_File
+     * @return PHP_ChangeCoverage_Report_Clover
      */
-    protected function createSourceFile( SimpleXMLElement $file )
+    protected function createCloverReport()
     {
-        $lines = array();
-        foreach ( $file->line as $line )
-        {
-            if ( 'method' === (string) $line['type'] )
-            {
-                continue;
-            }
-            $lines[] = new PHP_ChangeCoverage_Source_Line(
-                (int) $line['num'],
-                (int) $line['count']
-            );
-        }
-        return new PHP_ChangeCoverage_Source_File( (string) $file['name'], $lines );
+        $path = $this->createFile( 'report.xml', $this->cloverFixture );
+        $sxml = simplexml_load_file( $path );
+
+        return new PHP_ChangeCoverage_Report_Clover( $sxml );
     }
 }

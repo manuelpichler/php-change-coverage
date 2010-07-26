@@ -38,7 +38,7 @@
  *
  * @category   QualityAssurance
  * @package    PHP_ChangeCoverage
- * @subpackage VersionControl
+ * @subpackage Report
  * @author     Manuel Pichler <mapi@pdepend.org>
  * @copyright  2010 Manuel Pichler. All rights reserved.
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
@@ -51,7 +51,7 @@
  *
  * @category   QualityAssurance
  * @package    PHP_ChangeCoverage
- * @subpackage VersionControl
+ * @subpackage Report
  * @author     Manuel Pichler <mapi@pdepend.org>
  * @copyright  2010 Manuel Pichler. All rights reserved.
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
