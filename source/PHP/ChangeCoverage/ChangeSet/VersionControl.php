@@ -38,7 +38,7 @@
  *
  * @category   QualityAssurance
  * @package    PHP_ChangeCoverage
- * @subpackage Source
+ * @subpackage ChangeSet
  * @author     Manuel Pichler <mapi@pdepend.org>
  * @copyright  2010 Manuel Pichler. All rights reserved.
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
@@ -46,94 +46,79 @@
  * @link       http://pdepend.org/
  */
 
-require_once dirname( __FILE__ ) . '/../AbstractTestCase.php';
-
 /**
- * Unit tests for class {@link PHP_ChangeCoverage_Source_Line}.
  *
  * @category   QualityAssurance
  * @package    PHP_ChangeCoverage
- * @subpackage Source
+ * @subpackage ChangeSet
  * @author     Manuel Pichler <mapi@pdepend.org>
  * @copyright  2010 Manuel Pichler. All rights reserved.
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @version    Release: @package_version@
  * @link       http://pdepend.org/
  */
-class PHP_ChangeCoverage_Source_LineUnitTest extends PHP_ChangeCoverage_AbstractTestCase
+class PHP_ChangeCoverage_ChangeSet_VersionControl implements PHP_ChangeCoverage_ChangeSet
 {
     /**
-     * testGetNumberReturnsInputValue
+     * The context version control backend file.
      *
-     * @return void
-     * @covers PHP_ChangeCoverage_Source_Line
-     * @group source
-     * @group unittest
+     * @var vcsFile
      */
-    public function testGetNumberReturnsInputValue()
-    {
-        $line = new PHP_ChangeCoverage_Source_Line( 42, 0 );
-        self::assertEquals( 42, $line->getNumber() );
-    }
+    private $file = null;
 
     /**
-     * testGetCountReturnsInputValue
+     * Start date for the calculated change set as an unix timestamp.
      *
-     * @return void
-     * @covers PHP_ChangeCoverage_Source_Line
-     * @group source
-     * @group unittest
+     * @var integer
      */
-    public function testGetCountReturnsInputValue()
-    {
-        $line = new PHP_ChangeCoverage_Source_Line( 42, 23 );
-        self::assertEquals( 23, $line->getCount() );
-    }
+    private $startDate = 0;
 
     /**
-     * testDecrementCountReducesInitialValueByOne
+     * Constructs a new version control change set instance.
      *
-     * @return void
-     * @covers PHP_ChangeCoverage_Source_Line
-     * @group source
-     * @group unittest
+     * @param vcsFile $file The context version control backend file.
      */
-    public function testDecrementCountReducesInitialValueByOne()
+    public function __construct( vcsFile $file )
     {
-        $line = new PHP_ChangeCoverage_Source_Line( 42, 23 );
-        $line->decrementCount();
-
-        self::assertEquals( 22, $line->getCount() );
+        $this->file = $file;
     }
 
-    /**
-     * testHasChangedReturnsFalseByDefault
-     *
-     * @return void
-     * @covers PHP_ChangeCoverage_Source_Line
-     * @group source
-     * @group unittest
-     */
-    public function testHasChangedReturnsFalseByDefault()
+    public function setStartDate( $startDate )
     {
-        $line = new PHP_ChangeCoverage_Source_Line( 42, 23 );
-        self::assertFalse( $line->hasChanged() );
+        $this->startDate = $startDate;
     }
 
-
-    /**
-     * testSetChangedFlagsLineAsChanged
-     *
-     * @return void
-     * @covers PHP_ChangeCoverage_Source_Line
-     * @group source
-     * @group unittest
-     */
-    public function testSetChangedFlagsLineAsChanged()
+    public function calculate( PHP_ChangeCoverage_Source_File $file )
     {
-        $line = new PHP_ChangeCoverage_Source_Line( 42, 23 );
-        $line->setChanged();
+        return $this->createChangedLines( $file );
+    }
 
-        self::assertTrue( $line->hasChanged() );
+    private function createChangedLines( PHP_ChangeCoverage_Source_File $file )
+    {
+        foreach ( $this->file->getLog() as $log )
+        {
+            if ( $log->date >= $this->startDate )
+            {
+                $this->collectBlameInformation( $file, $log->version );
+            }
+        }
+        return $file;
+    }
+
+    private function collectBlameInformation( PHP_ChangeCoverage_Source_File $file, $version )
+    {
+        $blame = $this->file->blame( $version );
+        foreach ( $file->getLines() as $line )
+        {
+            if ( false === isset( $blame[$line->getNumber() - 1] ) )
+            {
+                continue;
+            }
+            if ( $blame[$line->getNumber() - 1]->date < $this->startDate )
+            {
+                continue;
+            }
+            $line->setChanged();
+        }
     }
 }

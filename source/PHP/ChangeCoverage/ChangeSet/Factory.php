@@ -82,7 +82,7 @@ class PHP_ChangeCoverage_ChangeSet_Factory
             }
             else if ( file_exists( $root . '.git' ) )
             {
-                return new PHP_ChangeCoverage_ChangeSet_VcsResource( new vcsGitCliFile( $root, $path ), $file );
+                return new PHP_ChangeCoverage_ChangeSet_VersionControl( new vcsGitCliFile( $root, $path ), $file );
             }
             else if ( file_exists( $root . '.hg' ) )
             {

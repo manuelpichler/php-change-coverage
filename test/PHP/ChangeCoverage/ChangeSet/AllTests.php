@@ -38,7 +38,7 @@
  *
  * @category   QualityAssurance
  * @package    PHP_ChangeCoverage
- * @subpackage VersionControl
+ * @subpackage ChangeSet
  * @author     Manuel Pichler <mapi@pdepend.org>
  * @copyright  2010 Manuel Pichler. All rights reserved.
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
@@ -46,68 +46,41 @@
  * @link       http://pdepend.org/
  */
 
+require_once 'PHPUnit/Framework/TestSuite.php';
+
 /**
+ * Test suite for the changeset sub package.
  *
  * @category   QualityAssurance
  * @package    PHP_ChangeCoverage
- * @subpackage VersionControl
+ * @subpackage ChangeSet
  * @author     Manuel Pichler <mapi@pdepend.org>
  * @copyright  2010 Manuel Pichler. All rights reserved.
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @version    Release: @package_version@
  * @link       http://pdepend.org/
  */
-class PHP_ChangeCoverage_ChangeSet_VcsResource implements PHP_ChangeCoverage_ChangeSet
+class PHP_ChangeCoverage_ChangeSet_AllTests extends PHPUnit_Framework_TestSuite
 {
     /**
-     *
-     * @var vcsFile
+     * Constructs a new test suite instance.
      */
-    private $file = null;
-    
-    private $startDate = 0;
-
-    public function __construct( vcsFile $file )
+    public function __construct()
     {
-        $this->file       = $file;
+        $this->setName( 'PHP::ChangeCoverage::ChangeSet::AllTests' );
+
+        PHPUnit_Util_Filter::addDirectoryToWhitelist(
+            realpath( dirname( __FILE__ ) . '/../../../../source/' )
+        );
     }
 
-    public function setStartDate( $startDate )
+    /**
+     * Creates a new test suite instance.
+     *
+     * @return PHPUnit_Framework_TestSuite
+     */
+    public static function suite()
     {
-        $this->startDate = $startDate;
-    }
-
-    public function calculate( PHP_ChangeCoverage_Source_File $file )
-    {
-        return $this->createChangedLines( $file );
-    }
-
-    private function createChangedLines( PHP_ChangeCoverage_Source_File $file )
-    {
-        foreach ( $this->file->getLog() as $log )
-        {
-            if ( $log->date >= $this->startDate )
-            {
-                $this->collectBlameInformation( $file, $log->version );
-            }
-        }
-        return $file;
-    }
-
-    private function collectBlameInformation( PHP_ChangeCoverage_Source_File $file, $version )
-    {
-        $blame = $this->file->blame( $version );
-        foreach ( $file->getLines() as $line )
-        {
-            if ( false === isset( $blame[$line->getNumber() - 1] ) )
-            {
-                continue;
-            }
-            if ( $blame[$line->getNumber() - 1]->date < $this->startDate )
-            {
-                continue;
-            }
-            $line->setChanged();
-        }
+        return new PHP_ChangeCoverage_ChangeSet_AllTests();
     }
 }
