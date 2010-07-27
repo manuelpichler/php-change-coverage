@@ -1,0 +1,12 @@
+Authors of arbit
+================
+
+All arbit authors with at least one commit sorted by their commit count. You
+may regenerate this statistic with::
+
+	$ svn log | grep '^r' | awk '{print $3}' | sort | uniq -c | sort -n | tac
+
+- Kore Nordmann <kore@arbitracker.org>
+- Manuel Pichler <mapi@arbitracker.org>
+- Tobias Tom <tobias@arbitracker.org>
+
