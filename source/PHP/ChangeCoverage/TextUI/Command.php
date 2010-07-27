@@ -103,6 +103,13 @@ class PHP_ChangeCoverage_TextUI_Command
     private $phpunitBinary = 'phpunit';
 
     /**
+     * Should the coverage report contain unmodified lines as covered?
+     *
+     * @var boolean
+     */
+    private $unmodifiedAsCovered = false;
+
+    /**
      * The coverage report factory to use.
      *
      * @var PHP_ChangeCoverage_Report_Factory
@@ -167,6 +174,7 @@ class PHP_ChangeCoverage_TextUI_Command
             $this->writeLine( '  --phpunit-binary         Optional path to phpunit\'s binary.' );
             $this->writeLine( '  --modified-since         Cover only lines that were changed since this date.' );
             $this->writeLine( '                           This option accepts textual date expressions.' );
+            $this->writeLine( '  --unmodified-as-covered  Mark all unmodified lines as covered.' );
 
             if ( isset( $exception ) )
             {
@@ -241,6 +249,10 @@ class PHP_ChangeCoverage_TextUI_Command
         {
             $this->phpunitBinary = $this->parsePhpunitBinary( $argv[$i + 1] );
         }
+        if ( is_int( $i = array_search( '--unmodified-as-covered', $argv ) ) )
+        {
+            $this->unmodifiedAsCovered = true;
+        }
     }
 
     /**
@@ -314,11 +326,12 @@ class PHP_ChangeCoverage_TextUI_Command
     protected function extractPhpunitArguments( array $argv )
     {
         $remove = array(
-            '--coverage-clover' => true,
-            '--coverage-html'   => true,
-            '--temp-dir'        => true,
-            '--modified-since'  => true,
-            '--phpunit-binary'  => true,
+            '--coverage-clover'        =>  true,
+            '--coverage-html'          =>  true,
+            '--temp-dir'               =>  true,
+            '--modified-since'         =>  true,
+            '--phpunit-binary'         =>  true,
+            '--unmodified-as-covered'  =>  false,
         );
 
         $arguments = array();
@@ -403,6 +416,10 @@ class PHP_ChangeCoverage_TextUI_Command
         $this->writeLine();
 
         $xdebug = new PHP_ChangeCoverage_Xdebug();
+        if ( $this->unmodifiedAsCovered )
+        {
+            $xdebug->setUnmodifiedAsCovered();
+        }
 
         foreach ( $report->getFiles() as $file )
         {

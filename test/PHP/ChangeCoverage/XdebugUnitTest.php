@@ -159,6 +159,40 @@ class PHP_ChangeCoverage_XdebugUnitTest extends PHP_ChangeCoverage_AbstractTestC
     }
 
     /**
+     * testGeneratedXdebugArrayContainsUnmodifiedLinesAsCovered
+     *
+     * @return void
+     * @covers PHP_ChangeCoverage_Xdebug
+     * @group unittest
+     */
+    public function testGeneratedXdebugArrayContainsUnmodifiedLinesAsCovered()
+    {
+        $file = new PHP_ChangeCoverage_Source_File(
+            '/tmp/foo.php',
+            array(
+                new PHP_ChangeCoverage_Source_Line( 23, 0, true ),
+                new PHP_ChangeCoverage_Source_Line( 42, 1, false ),
+            )
+        );
+
+        $xdebug = new PHP_ChangeCoverage_Xdebug();
+        $xdebug->setUnmodifiedAsCovered();
+        $actual = iterator_to_array( $xdebug->generateData( $file ) );
+
+        $this->assertEquals(
+            array(
+                array(
+                    '/tmp/foo.php'  =>  array(
+                        23 => -1,
+                        42 => 1
+                    ),
+                )
+            ),
+            $actual
+        );
+    }
+
+    /**
      * testGeneratedDataContainsXdebugArrayForEachPossibleExecution
      *
      * @return void

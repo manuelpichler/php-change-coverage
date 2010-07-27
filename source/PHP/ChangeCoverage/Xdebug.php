@@ -75,6 +75,27 @@ class PHP_ChangeCoverage_Xdebug
     private $stopExecution = false;
 
     /**
+     * Xdebug status code that will be used for those lines that haven't been
+     * changed within the analyzed time range.
+     *
+     * @var integer
+     */
+    private $unmodifiedLineStatus = -2;
+
+    /**
+     * This method changes the handling of unmodified lines. After a call to
+     * this method this class will flag all lines that haven't changed as covered,
+     * instead of the default behaviour where those lines were marked as dead
+     * code.
+     *
+     * @return void
+     */
+    public function setUnmodifiedAsCovered()
+    {
+        $this->unmodifiedLineStatus = 1;
+    }
+
+    /**
      * This method generates an iterator that contains several arrays identical
      * to those created by debug.
      *
@@ -147,7 +168,7 @@ class PHP_ChangeCoverage_Xdebug
             }
             else
             {
-                $xdebug[$line->getNumber()] = -2;
+                $xdebug[$line->getNumber()] = $this->unmodifiedLineStatus;
             }
         }
         return array( $this->file->getPath() => $xdebug );
