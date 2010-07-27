@@ -96,35 +96,86 @@ class PHP_ChangeCoverage_TextUI_Command
     private $modifiedSince = 0;
 
     /**
+     * The PHPUnit cli tool to use.
+     *
+     * @var string
+     */
+    private $phpunitBinary = 'phpunit';
+
+    /**
      * The coverage report factory to use.
      *
      * @var PHP_ChangeCoverage_Report_Factory
      */
     private $reportFactory = null;
 
+    /**
+     * Constructs a new command instance and sets some system default values.
+     */
     public function  __construct()
     {
+        $this->modifiedSince = time() - ( 60 * 86400 );
         $this->tempDirectory = sys_get_temp_dir() . '/php-change-coverage/';
+
+        if ( stripos( PHP_OS, 'win' ) === 0 )
+        {
+            $this->phpunitBinary .= '.bat';
+        }
+
     }
 
+    /**
+     * First runs PHPUnit and then post processes the generated coverage data
+     * to calculate the change coverage.
+     *
+     * @param array(string) $argv The raw command line arguments.
+     *
+     * @return integer
+     */
     public function run( array $argv )
     {
         $this->printVersionString();
 
-        $this->handleArguments( $argv );
+        try
+        {
+            $this->handleArguments( $argv );
 
-        $arguments = $this->extractPhpunitArguments( $argv );
-        $arguments = array_map( 'escapeshellarg', $arguments );
+            $arguments = $this->extractPhpunitArguments( $argv );
+            $arguments = array_map( 'escapeshellarg', $arguments );
+        }
+        catch ( InvalidArgumentException $e )
+        {
+            $exception = $e->getMessage();
+            $arguments = array( '--help' );
+        }
 
         $command = sprintf(
             '%s %s',
-            escapeshellarg( 'phpunit' ),
+            escapeshellarg( $this->phpunitBinary ),
             join( ' ', $arguments )
         );
         
         passthru( $command, $code );
 
-        if ( file_exists( $this->temporaryClover ) )
+        if ( $code === 2 || in_array( '--help', $arguments ) )
+        {
+            $this->writeLine();
+            $this->writeLine();
+            $this->writeLine( 'Additional options added by PHP_ChangeCoverage' );
+            $this->writeLine();
+            $this->writeLine( '  --temp-dir               Temporary directory for generated runtime data.' );
+            $this->writeLine( '  --phpunit-binary         Optional path to phpunit\'s binary.' );
+            $this->writeLine( '  --modified-since         Cover only lines that were changed since this date.' );
+            $this->writeLine( '                           This option accepts textual date expressions.' );
+
+            if ( isset( $exception ) )
+            {
+                $this->writeLine();
+                $this->writeLine( $exception );
+                return 2;
+            }
+        }
+        else if ( file_exists( $this->temporaryClover ) )
         {
             PHP_Timer::start();
 
@@ -135,23 +186,36 @@ class PHP_ChangeCoverage_TextUI_Command
             $this->writeCoverageHtml( $codeCoverage );
 
             PHP_Timer::stop();
-            echo PHP_Timer::resourceUsage(), PHP_EOL;
+            $this->writeLine( PHP_Timer::resourceUsage() );
 
             unlink( $this->temporaryClover );
         }
         return $code;
     }
 
+    /**
+     * Outputs the PHP_ChangeCoverage version string.
+     *
+     * @return void
+     */
     protected function printVersionString()
     {
-        echo 'PHP_ChangeCoverage @package_version@ by Manuel Pichler', PHP_EOL,
-             ' utilizes ';
+        $this->writeLine( 'PHP_ChangeCoverage @package_version@ by Manuel Pichler' );
+        $this->write( ' utilizes ' );
     }
 
+    /**
+     * This method extracts the command line arguments that belong to the change
+     * coverage tool.
+     *
+     * @param array(string) $argv The raw command line arguments.
+     *
+     * @return void
+     * @throws InvalidArgumentException When one of the passed command line
+     *         values has an unexpected or incorrect format.
+     */
     protected function handleArguments( array $argv )
     {
-        $this->modifiedSince = time() - ( 60 * 86400 );
-
         if ( is_int( $i = array_search( '--temp-dir', $argv ) ) )
         {
             $this->tempDirectory = $this->parseTemporaryDirectory( $argv[$i + 1] );
@@ -173,8 +237,19 @@ class PHP_ChangeCoverage_TextUI_Command
         {
             $this->modifiedSince = $this->parseModifiedSince( $argv[$i + 1] );
         }
+        if ( is_int( $i = array_search( '--phpunit-binary', $argv ) ) )
+        {
+            $this->phpunitBinary = $this->parsePhpunitBinary( $argv[$i + 1] );
+        }
     }
 
+    /**
+     * Parses the temporary directory that was specified by the user.
+     *
+     * @param string $directory Temporary directory provided by the user.
+     *
+     * @return string
+     */
     protected function parseTemporaryDirectory( $directory )
     {
         if ( false === file_exists( $directory ) )
@@ -185,33 +260,76 @@ class PHP_ChangeCoverage_TextUI_Command
         {
             return $directory;
         }
-        throw new RuntimeException( "Cannot find temp directory: '{$directory}." );
+        throw new InvalidArgumentException( "Cannot find temp directory: '{$directory}." );
     }
 
+    /**
+     * This method parses a user specified start date and returns it's unix
+     * timestamp representation. The current implementation of this method
+     * only utilizes PHP's native <b>strtotime()</b> function to parse user
+     * input.
+     *
+     * @param string $modified The user specified start date for modifications.
+     *
+     * @return integer
+     * @throws InvalidArgumentException When the given modified expression
+     *         cannot be parsed by strtotime().
+     * @todo Support other formats like "3m 15d 12h".
+     */
     protected function parseModifiedSince( $modified )
     {
         if ( is_int( $timestamp = strtotime( $modified ) ) )
         {
             return $timestamp;
         }
-        throw new RuntimeException( "Cannot parse modified since: {$modified}" );
+        throw new InvalidArgumentException( "Cannot parse modified since: '{$modified}'." );
     }
 
+    /**
+     * Handles a user specified phpunit cli tool.
+     *
+     * @param string $phpunit The user specified PHPUnit cli tool.
+     *
+     * @return string
+     * @throws InvalidArgumentException When the given binary does not exist.
+     */
+    protected function parsePhpunitBinary( $phpunit )
+    {
+        if ( file_exists( $phpunit ) )
+        {
+            return $phpunit;
+        }
+        throw new InvalidArgumentException( "Cannot find phpunit binary: '{$phpunit}'." );
+    }
+
+    /**
+     * This method extracts all those arguments that are relevant for the nested
+     * phpunit process.
+     *
+     * @param array(string) $argv The raw arguments passed to php change coverage.
+     *
+     * @return array(string)
+     * @todo Move this into a separate PHPUnitBinary class.
+     */
     protected function extractPhpunitArguments( array $argv )
     {
         $remove = array(
-            '--coverage-clover',
-            '--coverage-html',
-            '--temp-dir',
-            '--modified-since'
+            '--coverage-clover' => true,
+            '--coverage-html'   => true,
+            '--temp-dir'        => true,
+            '--modified-since'  => true,
+            '--phpunit-binary'  => true,
         );
 
         $arguments = array();
         for ( $i = 1; $i < count( $argv ); ++$i )
         {
-            if ( in_array( $argv[$i], $remove ) )
+            if ( isset( $remove[$argv[$i]] ) )
             {
-                ++$i;
+                if ( $remove[$argv[$i]] )
+                {
+                    ++$i;
+                }
             }
             else
             {
@@ -280,9 +398,9 @@ class PHP_ChangeCoverage_TextUI_Command
         $factory = new PHP_ChangeCoverage_ChangeSet_Factory();
         vcsCache::initialize( $this->tempDirectory );
 
-        echo PHP_EOL, 'Collecting commits and meta data, this may take a moment.', 
-             PHP_EOL,
-             PHP_EOL;
+        $this->writeLine();
+        $this->writeLine( 'Collecting commits and meta data, this may take a moment.' );
+        $this->writeLine();
 
         $xdebug = new PHP_ChangeCoverage_Xdebug();
 
@@ -312,9 +430,8 @@ class PHP_ChangeCoverage_TextUI_Command
     {
         if ( $this->coverageClover )
         {
-            echo 'Writing change coverage data to XML file, this may take a moment.',
-                 PHP_EOL,
-                 PHP_EOL;
+            $this->writeLine( 'Writing change coverage data to XML file, this may take a moment.' );
+            $this->writeLine();
 
             $clover = new PHP_CodeCoverage_Report_Clover();
             $clover->process( $coverage, $this->coverageClover );
@@ -332,19 +449,41 @@ class PHP_ChangeCoverage_TextUI_Command
     {
         if ( $this->coverageHtml )
         {
-            echo 'Writing change coverage report, this may take a moment.',
-                 PHP_EOL,
-                 PHP_EOL;
+            $this->writeLine( 'Writing change coverage report, this may take a moment.' );
+            $this->writeLine();
 
             $html = new PHP_CodeCoverage_Report_HTML(
                 array(
                     'title'      =>  'Coverage Report for files modified since ' . date( 'Y/m/d', $this->modifiedSince ),
-                    'highlight'  =>  true,
                     'yui'        =>  false,
-                    'generator'  =>  ' <a href="http://qafoo.com">ChangeCoverage</a>'
+                    'generator'  =>  ' post processed by PHP_ChangeCoverage'
                 )
             );
             $html->process( $coverage, $this->coverageHtml );
         }
+    }
+
+    /**
+     * Writes the given data string to STDOUT and appends a line feed.
+     *
+     * @param string $data Any data that should be send to STDOUT.
+     *
+     * @return void
+     */
+    protected function writeLine( $data = '' )
+    {
+        $this->write( $data . PHP_EOL );
+    }
+
+    /**
+     * Writes the given data string to STDOUT.
+     *
+     * @param string $data Any data that should be send to STDOUT.
+     *
+     * @return void
+     */
+    protected function write( $data )
+    {
+        echo $data;
     }
 }
