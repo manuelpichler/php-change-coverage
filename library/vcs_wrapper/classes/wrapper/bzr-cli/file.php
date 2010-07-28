@@ -19,7 +19,7 @@
  *
  * @package VCSWrapper
  * @subpackage BzrCliWrapper
- * @version $Revision: 1859 $
+ * @version $Revision: 1861 $
  * @license http://www.gnu.org/licenses/lgpl-3.0.txt LGPLv3
  */
 
@@ -28,7 +28,7 @@
  *
  * @package VCSWrapper
  * @subpackage BzrCliWrapper
- * @version $Revision: 1859 $
+ * @version $Revision: 1861 $
  */
 class vcsBzrCliFile extends vcsBzrCliResource implements vcsFile, vcsBlameable, vcsDiffable
 {
@@ -122,10 +122,10 @@ class vcsBzrCliFile extends vcsBzrCliResource implements vcsFile, vcsBlameable, 
                 {
 
                     $blame[] = new vcsBlameStruct(
-                        $line['author'],
-                        strtotime( $line['date'] ),
+                        $line,
                         $line['revno'],
-                        $line
+                        $line['author'],
+                        strtotime( $line['date'] )
                     );
                 }
             }
@@ -141,4 +141,5 @@ class vcsBzrCliFile extends vcsBzrCliResource implements vcsFile, vcsBlameable, 
     }
 
 }
+
 

@@ -19,7 +19,7 @@
  *
  * @package VCSWrapper
  * @subpackage MercurialCliWrapper
- * @version $Revision: 1859 $
+ * @version $Revision: 1860 $
  * @license http://www.gnu.org/licenses/lgpl-3.0.txt LGPLv3
  */
 
@@ -28,15 +28,24 @@
  *
  * @package VCSWrapper
  * @subpackage MercurialCliWrapper
- * @version $Revision: 1859 $
+ * @version $Revision: 1860 $
  */
 class vcsHgCliFile extends vcsHgCliResource implements vcsFile, vcsBlameable, vcsDiffable
 {
     /**
-     * Get file contents
-     * 
-     * Get the contents of the current file.
-     * 
+     * Regexp to parse a mercurial blame line.
+     */
+    const BLAME_REGEXP = '(
+        (?P<user>.*)\s+
+        (?P<hash>[a-z0-9]+)\s+
+        (?P<date>[a-z]{3}\s[a-z]{3}\s\d{1,2}\s\d{2}:\d{2}:\d{2}\s\d{4}\s\+\d{4}):
+        (?P<line>\d+):\s+
+        (?P<data>.*)
+    )ix';
+    
+    /**
+     * Returns the contents of this file
+     *
      * @return string
      */
     public function getContents()
@@ -118,22 +127,16 @@ class vcsHgCliFile extends vcsHgCliResource implements vcsFile, vcsBlameable, vc
                     continue;
                 }
 
-                $emailEndPos = strpos( $line, '>' );
-                if ( !$emailEndPos )
+                if ( preg_match( self::BLAME_REGEXP, $line, $match ) === 0 )
                 {
-                    // todo: implement better parsing for the blame line
                     throw new vcsRuntimeException( "Could not parse line: $line" );
                 }
-                $user = substr( $line, 0, $emailEndPos + 1 );
-                $shortHash = substr( $line, $emailEndPos + 2, 12 );
 
-                $date = substr( $line, $emailEndPos + 15, 30 );
-                $line = substr( $line, $emailEndPos + 46 );
-
-                $linePositionEnd = strpos( $line, ':' );
-                $lineNumber = substr( $linePositionEnd, 0, $linePositionEnd );
-
-                $line = trim( substr( $line, $linePositionEnd + 1 ) );
+                $user       = $match['user'];
+                $date       = $match['date'];
+                $line       = $match['data'];
+                $shortHash  = $match['hash'];
+                $lineNumber = $match['line'];
 
                 if ( !isset( $shortHashCache[ $shortHash ] ) )
                 {
@@ -161,13 +164,14 @@ class vcsHgCliFile extends vcsHgCliResource implements vcsFile, vcsBlameable, vc
 
                 // lets start the little work. we need the alias part of the
                 // email inside the username
-                $emailStart = strrpos( $user, '<' );
-                $emailEnd = strrpos( $user, '>' );
-                // start and end of email, now lets get it from the username
-                $email = substr( $user, $emailStart + 1, $emailEnd - $emailStart );
-                // alias and domain part, should be separated with @.
-                // todo: we might want to check if there is really a @.
-                list( $alias, $domain ) = explode( '@', $email );
+                if ( preg_match( '(<(?P<alias>\S+)@\S+\.\S+>$)', $user, $match ) )
+                {
+                    $alias = $match['alias'];
+                }
+                else
+                {
+                    $alias = $user;
+                }
 
                 $blame[] = new vcsBlameStruct( $line, $revision, $alias, strtotime( $date ) );
             }
@@ -197,7 +201,7 @@ class vcsHgCliFile extends vcsHgCliResource implements vcsFile, vcsBlameable, vc
         }
 
         $diff = vcsCache::get( $this->path, $version, 'diff' );
-        if ($diff === false)
+        if ( $diff === false )
         {
             // Refetch the basic content information, and cache it.
             $process = new vcsHgCliProcess();
@@ -220,4 +224,5 @@ class vcsHgCliFile extends vcsHgCliResource implements vcsFile, vcsBlameable, vc
         return $diff;
     }
 }
+
 
