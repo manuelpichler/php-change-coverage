@@ -168,12 +168,14 @@ abstract class PHP_ChangeCoverage_AbstractTestCase extends PHPUnit_Framework_Tes
             {
                 $this->deleteDirectory( $file->getPathname() );
             }
+            unset( $file );
         }
+        unset( $dir );
         rmdir( $directory );
     }
 
     protected function getTempDirectory()
     {
-        return sys_get_temp_dir() . '/~phpunit-phpcc';
+        return rtrim( sys_get_temp_dir(), DIRECTORY_SEPARATOR ) . DIRECTORY_SEPARATOR . '~phpunit-phpcc';
     }
 }
