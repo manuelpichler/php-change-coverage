@@ -228,8 +228,13 @@ class PHP_ChangeCoverage_TextUI_Command
         {
             $this->tempDirectory = $this->parseTemporaryDirectory( $argv[$i + 1] );
         }
+        else
+        {
+            $this->tempDirectory = $this->parseTemporaryDirectory( $this->tempDirectory );
+        }
         $temporaryClover = $this->tempDirectory . '/' . uniqid( '~ccov-' ) . '.xml';
 
+        // Tests
 
         if ( is_int( $i = array_search( '--coverage-clover', $argv ) ) )
         {
