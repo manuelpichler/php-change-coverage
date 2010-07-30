@@ -157,8 +157,8 @@ abstract class PHP_ChangeCoverage_AbstractTestCase extends PHPUnit_Framework_Tes
 
     protected function deleteDirectory( $directory )
     {
-        $dir = new DirectoryIterator( $directory );
-        foreach ( $dir as $file )
+        $iterator = new DirectoryIterator( $directory );
+        foreach ( $iterator as $file )
         {
             if ( $file->isFile() )
             {
@@ -170,10 +170,15 @@ abstract class PHP_ChangeCoverage_AbstractTestCase extends PHPUnit_Framework_Tes
             }
             unset( $file );
         }
-        unset( $dir );
+        unset( $iterator );
         rmdir( $directory );
     }
 
+    /**
+     * Returns a temporary directory for the current test.
+     *
+     * @return string
+     */
     protected function getTempDirectory()
     {
         return rtrim( sys_get_temp_dir(), DIRECTORY_SEPARATOR ) . DIRECTORY_SEPARATOR . '~phpunit-phpcc';
