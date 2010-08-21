@@ -19,7 +19,7 @@
  *
  * @package VCSWrapper
  * @subpackage MercurialCliWrapper
- * @version $Revision: 1859 $
+ * @version $Revision: 1863 $
  * @license http://www.gnu.org/licenses/lgpl-3.0.txt LGPLv3
  */
 
@@ -28,7 +28,7 @@
  *
  * @package VCSWrapper
  * @subpackage MercurialCliWrapper
- * @version $Revision: 1859 $
+ * @version $Revision: 1863 $
  */
 class vcsHgCliProcess extends pbsSystemProcess
 {
@@ -72,6 +72,7 @@ class vcsHgCliProcess extends pbsSystemProcess
         }
 
         $process = new pbsSystemProcess( 'env' );
+        $process->nonZeroExitCodeException = true;
         $process->argument( 'hg' )->argument( '--version' )->execute();
 
         if ( !preg_match( '/\(version (.*)\)/', $process->stdoutOutput, $match ) )

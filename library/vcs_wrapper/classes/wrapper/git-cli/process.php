@@ -19,7 +19,7 @@
  *
  * @package VCSWrapper
  * @subpackage GitCliWrapper
- * @version $Revision: 1859 $
+ * @version $Revision: 1863 $
  * @license http://www.gnu.org/licenses/lgpl-3.0.txt LGPLv3
  */
 
@@ -28,7 +28,7 @@
  *
  * @package VCSWrapper
  * @subpackage GitCliWrapper
- * @version $Revision: 1859 $
+ * @version $Revision: 1863 $
  */
 class vcsGitCliProcess extends pbsSystemProcess
 {
@@ -71,6 +71,7 @@ class vcsGitCliProcess extends pbsSystemProcess
         }
 
         $process = new pbsSystemProcess( 'git' );
+        $process->nonZeroExitCodeException = true;
         $process->argument( '--version' )->execute();
 
         if ( !preg_match( '(\\d+(?:\.\\d+)+)', $process->stdoutOutput, $match ) )

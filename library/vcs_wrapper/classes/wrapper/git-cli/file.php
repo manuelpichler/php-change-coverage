@@ -19,7 +19,7 @@
  *
  * @package VCSWrapper
  * @subpackage GitCliWrapper
- * @version $Revision: 1859 $
+ * @version $Revision: 1865 $
  * @license http://www.gnu.org/licenses/lgpl-3.0.txt LGPLv3
  */
 
@@ -28,10 +28,15 @@
  *
  * @package VCSWrapper
  * @subpackage GitCliWrapper
- * @version $Revision: 1859 $
+ * @version $Revision: 1865 $
  */
 class vcsGitCliFile extends vcsGitCliResource implements vcsFile, vcsBlameable, vcsDiffable
 {
+    /**
+     * Regular expression used to extract data from a git blame line.
+     */
+    const BLAME_REGEXP = '{^\^?(?P<version>[0-9a-f]{1,40})[^(]+\((?P<author>.*)\s+(?P<date>(?:19|20).*)\s+(?P<number>\d+)\)(?: (?P<line>.*))?}';
+
     /**
      * Get file contents
      * 
@@ -107,8 +112,9 @@ class vcsGitCliFile extends vcsGitCliResource implements vcsFile, vcsBlameable, 
             $blame = array();
             foreach ( $contents as $nr => $line )
             {
-                if ( preg_match( '{^\^?(?P<version>[0-9a-f]{1,40})[^(]+\((?P<author>.*)\s+(?P<date>(19|20).*)\s+(?P<number>\d+)\) (?P<line>.*)}', $line, $match ) )
+                if ( preg_match( self::BLAME_REGEXP, $line, $match ) )
                 {
+                    $match['line'] = isset( $match['line'] ) ? $match['line'] : null;
                     $blame[] = new vcsBlameStruct( $match['line'], $match['version'], $match['author'], strtotime( $match['date'] ) );
                 }
                 else

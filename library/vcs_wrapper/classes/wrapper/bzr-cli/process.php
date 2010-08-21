@@ -19,7 +19,7 @@
  *
  * @package VCSWrapper
  * @subpackage MercurialCliWrapper
- * @version $Revision: 1859 $
+ * @version $Revision: 1863 $
  * @license http://www.gnu.org/licenses/lgpl-3.0.txt LGPLv3
  */
 
@@ -28,7 +28,7 @@
  *
  * @package VCSWrapper
  * @subpackage MercurialCliWrapper
- * @version $Revision: 1859 $
+ * @version $Revision: 1863 $
  */
 class vcsBzrCliProcess extends pbsSystemProcess
 {
@@ -71,6 +71,7 @@ class vcsBzrCliProcess extends pbsSystemProcess
         }
 
         $process = new pbsSystemProcess( 'bzr' );
+        $process->nonZeroExitCodeException = true;
         $process->argument( '--version' )->execute();
 
         if ( !preg_match( '/\Bazaar \(bzr\) ([0-9.]*)/', $process->stdoutOutput, $match ) )
@@ -84,6 +85,7 @@ class vcsBzrCliProcess extends pbsSystemProcess
         }
 
         $process = new pbsSystemProcess( 'bzr' );
+        $process->nonZeroExitCodeException = true;
         $process->argument( 'plugins' )->execute();
 
         if ( strpos( $process->stdoutOutput, 'xmloutput' ) === false )
