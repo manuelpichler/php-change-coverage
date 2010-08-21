@@ -51,6 +51,7 @@ require_once dirname( __FILE__ ) . '/ChangeSet/AllTests.php';
 require_once dirname( __FILE__ ) . '/Source/AllTests.php';
 require_once dirname( __FILE__ ) . '/Report/AllTests.php';
 
+require_once dirname( __FILE__ ) . '/PHPUnitUnitTest.php';
 require_once dirname( __FILE__ ) . '/XdebugUnitTest.php';
 
 /**
@@ -81,6 +82,7 @@ class PHP_ChangeCoverage_AllTests extends PHPUnit_Framework_TestSuite
         $this->addTest( PHP_ChangeCoverage_Source_AllTests::suite() );
         $this->addTest( PHP_ChangeCoverage_Report_AllTests::suite() );
 
+        $this->addTestSuite( 'PHP_ChangeCoverage_PHPUnitUnitTest' );
         $this->addTestSuite( 'PHP_ChangeCoverage_XdebugUnitTest' );
     }
 
