@@ -128,7 +128,6 @@ class PHP_ChangeCoverage_TextUI_Command
         {
             $this->phpunitBinary .= '.bat';
         }
-
     }
 
     /**
@@ -148,7 +147,6 @@ class PHP_ChangeCoverage_TextUI_Command
             $this->handleArguments( $argv );
 
             $arguments = $this->extractPhpunitArguments( $argv );
-            $arguments = array_map( 'escapeshellarg', $arguments );
         }
         catch ( InvalidArgumentException $e )
         {
@@ -156,15 +154,10 @@ class PHP_ChangeCoverage_TextUI_Command
             $arguments = array( '--help' );
         }
 
-        $command = sprintf(
-            '%s %s',
-            escapeshellarg( $this->phpunitBinary ),
-            join( ' ', $arguments )
-        );
-        
-        passthru( $command, $code );
+        $phpunit = new PHP_ChangeCoverage_PHPUnit( $this->phpunitBinary );
+        $phpunit->run( $arguments );
 
-        if ( $code === 2 || in_array( '--help', $arguments ) )
+        if ( $phpunit->isHelp() )
         {
             $this->writeLine();
             $this->writeLine();
@@ -198,7 +191,8 @@ class PHP_ChangeCoverage_TextUI_Command
 
             unlink( $this->temporaryClover );
         }
-        return $code;
+        
+        return $phpunit->getExitCode();
     }
 
     /**
