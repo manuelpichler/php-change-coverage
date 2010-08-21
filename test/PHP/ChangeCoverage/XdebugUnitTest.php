@@ -44,6 +44,7 @@
  * @version   SVN: $Id$
  * @link      http://pdepend.org/
  */
+
 require_once dirname( __FILE__ ) . '/AbstractTestCase.php';
 
 /**
