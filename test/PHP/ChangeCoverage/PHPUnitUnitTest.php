@@ -64,7 +64,7 @@ class PHP_ChangeCoverage_PHPUnitUnitTest extends PHP_ChangeCoverage_AbstractTest
      * testDefaultExitCodeIsZero
      * 
      * @return void
-     * @covers PHP_ChangeCoverage_Xdebug
+     * @covers PHP_ChangeCoverage_PHPUnit
      * @group unittest
      */
     public function testDefaultExitCodeIsZero()
