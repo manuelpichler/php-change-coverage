@@ -3,6 +3,8 @@
 
 set_include_path( dirname( __FILE__ ) . '/source' . PATH_SEPARATOR . get_include_path() );
 
+require_once 'Text/Template/Autoload.php';
+require_once 'PHP/CodeCoverage/Autoload.php';
 require_once 'PHP/ChangeCoverage/Autoloader.php';
 
 $autoloader = new PHP_ChangeCoverage_Autoloader( dirname( __FILE__ ) . '/library' );

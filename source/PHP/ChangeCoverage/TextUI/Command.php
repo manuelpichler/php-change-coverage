@@ -469,11 +469,13 @@ class PHP_ChangeCoverage_TextUI_Command
             $this->writeLine();
 
             $html = new PHP_CodeCoverage_Report_HTML(
-                array(
-                    'title'      =>  'Coverage Report for files modified since ' . date( 'Y/m/d', $this->modifiedSince ),
-                    'yui'        =>  false,
-                    'generator'  =>  ' post processed by PHP_ChangeCoverage'
-                )
+                 'Coverage Report for files modified since ' . date(  'Y/m/d', $this->modifiedSince ), 
+                 'UTF-8', 
+                 false, 
+                 false, 
+                 35,
+                 70, 
+                 ' post processed by PHP_ChangeCoverage'
             );
             $html->process( $coverage, $this->coverageHtml );
         }
